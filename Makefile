@@ -12,9 +12,9 @@ run: example/.config
 
 .PHONY: release
 release:
-	$(ifeq ($(git diff --quiet || echo 'dirty'),dirty))
+	ifeq ($(git diff --quiet || echo 'dirty'),dirty)
 		$(error Working directory is dirty)
-	$(endif)
+	endif
 
 	# mkdir releases
 	# GOOS=darwin GOARCH=amd64 cd example && $(MAKE) build
