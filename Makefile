@@ -13,6 +13,7 @@ run: example/.config
 .PHONY: release
 release:
 	git diff-index --quiet HEAD
+	git branch -f master
 
 	# mkdir releases
 	# GOOS=darwin GOARCH=amd64 cd example && $(MAKE) build
