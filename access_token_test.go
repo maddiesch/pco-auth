@@ -19,7 +19,7 @@ func TestAccessTokenFromCallback(t *testing.T) {
 			},
 			ClientID:     fakeClientID,
 			ClientSecret: fakeClientSecret,
-			Port:         8080,
+			RedirectURL:  &url.URL{},
 		}
 
 		token, err := AccessTokenFromCallback(input)
@@ -39,7 +39,7 @@ func TestPerformRefresh(t *testing.T) {
 			},
 			ClientID:     fakeClientID,
 			ClientSecret: fakeClientSecret,
-			Port:         8080,
+			RedirectURL:  &url.URL{},
 		})
 
 		require.NoError(t, err)

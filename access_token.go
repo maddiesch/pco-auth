@@ -76,7 +76,7 @@ type AccessTokenFromCallbackInput struct {
 	CallbackURL  *url.URL `validate:"required"`
 	ClientID     string   `validate:"required"`
 	ClientSecret string   `validate:"required"`
-	Port         int      `validate:"required"`
+	RedirectURL  *url.URL `validate:"required"`
 	logger       *log.Logger
 }
 
@@ -102,7 +102,7 @@ func AccessTokenFromCallback(input *AccessTokenFromCallbackInput) (*AccessToken,
 		"code":          input.CallbackURL.Query().Get("code"),
 		"client_id":     input.ClientID,
 		"client_secret": input.ClientSecret,
-		"redirect_uri":  redirectURI(input.Port).String(),
+		"redirect_uri":  input.RedirectURL.String(),
 	})
 	if err != nil {
 		return nil, err

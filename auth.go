@@ -85,8 +85,8 @@ func run(ctx context.Context, input *PerformInput, output chan *PerformOutput) {
 		ClientID:     input.ClientID,
 		ClientSecret: input.ClientSecret,
 		CallbackURL:  callback,
+		RedirectURL:  redirectURI(input.Port),
 		logger:       input.Logger,
-		Port:         input.Port,
 	})
 	if err != nil {
 		_fail(ctx, err)
