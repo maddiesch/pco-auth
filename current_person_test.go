@@ -1,6 +1,8 @@
 package auth_test
 
 import (
+	"fmt"
+	"net/url"
 	"testing"
 
 	. "github.com/maddiesch/pco-auth"
@@ -10,10 +12,20 @@ import (
 
 func TestFetchCurrentPerson(t *testing.T) {
 	t.Run("given a valid input", func(t *testing.T) {
-		input := &FetchCurrentPersonInput{
-			AccessToken: &AccessToken{
-				Token: "4fe461bac2e2104725d9f2d4f4f0c71d56235e4e089915c18799d3e4e3112e8e",
+		token, err := AccessTokenFromCallback(&AccessTokenFromCallbackInput{
+			CallbackURL: &url.URL{
+				Path:     "/callback",
+				RawQuery: fmt.Sprintf("code=%s", TestCredentials.Code),
 			},
+			ClientID:     TestCredentials.ClientID,
+			ClientSecret: TestCredentials.ClientSecret,
+			RedirectURL:  &url.URL{},
+		})
+
+		require.NoError(t, err)
+
+		input := &FetchCurrentPersonInput{
+			AccessToken: token,
 		}
 
 		current, err := FetchCurrentPerson(input)

@@ -3,6 +3,7 @@ package auth_test
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"testing"
 
 	. "github.com/maddiesch/pco-auth"
@@ -10,15 +11,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func assertHavePrefix(t *testing.T, prefix string, value string) {
+	if strings.HasPrefix(value, prefix) {
+		return
+	}
+
+	t.Logf("Expected '%s' to have the prefix '%s'", value, prefix)
+	t.Fail()
+}
+
 func TestAccessTokenFromCallback(t *testing.T) {
 	t.Run("given a valid input", func(t *testing.T) {
 		input := &AccessTokenFromCallbackInput{
 			CallbackURL: &url.URL{
 				Path:     "/callback",
-				RawQuery: fmt.Sprintf("code=%s", fakeCode),
+				RawQuery: fmt.Sprintf("code=%s", TestCredentials.Code),
 			},
-			ClientID:     fakeClientID,
-			ClientSecret: fakeClientSecret,
+			ClientID:     TestCredentials.ClientID,
+			ClientSecret: TestCredentials.ClientSecret,
 			RedirectURL:  &url.URL{},
 		}
 
@@ -26,7 +36,7 @@ func TestAccessTokenFromCallback(t *testing.T) {
 
 		require.NoError(t, err)
 
-		assert.Equal(t, "4fe461bac2e2104725d9f2d4f4f0c71d56235e4e089915c18799d3e4e3112e8e", token.Token)
+		assertHavePrefix(t, "fake_0", token.Token)
 	})
 }
 
@@ -35,26 +45,30 @@ func TestPerformRefresh(t *testing.T) {
 		token, err := AccessTokenFromCallback(&AccessTokenFromCallbackInput{
 			CallbackURL: &url.URL{
 				Path:     "/callback",
-				RawQuery: fmt.Sprintf("code=%s", fakeCode),
+				RawQuery: fmt.Sprintf("code=%s", TestCredentials.Code),
 			},
-			ClientID:     fakeClientID,
-			ClientSecret: fakeClientSecret,
+			ClientID:     TestCredentials.ClientID,
+			ClientSecret: TestCredentials.ClientSecret,
 			RedirectURL:  &url.URL{},
 		})
 
 		require.NoError(t, err)
 
-		assert.Equal(t, "4fe461bac2e2104725d9f2d4f4f0c71d56235e4e089915c18799d3e4e3112e8e", token.Token)
+		assertHavePrefix(t, "fake_0", token.Token)
+
+		before := token.Token
 
 		input := &PerformRefreshInput{
-			ClientID:     fakeClientID,
-			ClientSecret: fakeClientSecret,
+			ClientID:     TestCredentials.ClientID,
+			ClientSecret: TestCredentials.ClientSecret,
 		}
 
 		token, err = token.PerformRefresh(input)
 
 		require.NoError(t, err)
 
-		assert.Equal(t, "4f08dfadbbbfd092df3cb9ca4b5c04b1c48a149e15b9866523b1af328a5aa7a7", token.Token)
+		assertHavePrefix(t, "fake_0", token.Token)
+
+		assert.NotEqual(t, before, token.Token)
 	})
 }

@@ -1,7 +1,6 @@
 package auth_test
 
 import (
-	"fmt"
 	"net/url"
 	"testing"
 
@@ -15,19 +14,30 @@ func TestAuthorizationURL(t *testing.T) {
 	callbackURI, _ := url.Parse("http://foo.bar/callback")
 
 	input := AuthorizationURLInput{
-		ClientID:    fakeClientID,
+		ClientID:    TestCredentials.ClientID,
 		CallbackURI: callbackURI,
 		Scopes:      []string{"people"},
 	}
 
 	t.Run("given valid input", func(t *testing.T) {
-		url, err := AuthorizationURL(&input)
+		uri, err := AuthorizationURL(&input)
 
 		require.NoError(t, err)
 
-		expected := fmt.Sprintf("%s://%s/oauth/authorize?%s", PlanningCenterScheme, PlanningCenterHost, `client_id=160547a18450864a2e3f73536e7f76486146acb81b4c4ead3f308621ba044d87&redirect_uri=http%3A%2F%2Ffoo.bar%2Fcallback&response_type=code&scope=people`)
+		query := url.Values{}
+		query.Set("client_id", TestCredentials.ClientID)
+		query.Set("redirect_uri", "http://foo.bar/callback")
+		query.Set("response_type", "code")
+		query.Set("scope", "people")
 
-		assert.Equal(t, expected, url.String())
+		expected := &url.URL{
+			Scheme:   PlanningCenterScheme,
+			Host:     PlanningCenterHost,
+			Path:     "/oauth/authorize",
+			RawQuery: query.Encode(),
+		}
+
+		assert.Equal(t, expected.String(), uri.String())
 	})
 
 	t.Run("given invalid input for client id", func(t *testing.T) {

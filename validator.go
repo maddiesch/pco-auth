@@ -2,6 +2,7 @@ package auth
 
 import (
 	"regexp"
+	"strings"
 	"sync"
 
 	"gopkg.in/go-playground/validator.v9"
@@ -18,6 +19,9 @@ func Validator() *validator.Validate {
 	validatorSetup.Do(func() {
 		validatorInstance = validator.New()
 		validatorInstance.RegisterValidation("client_token", func(fl validator.FieldLevel) bool {
+			if strings.HasPrefix(fl.Field().String(), "fake_0") { // Fake testing token
+				return true
+			}
 			return tokenRegex.MatchString(fl.Field().String())
 		})
 	})
